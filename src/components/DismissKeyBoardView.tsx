@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 
 const DismissKeyboardView: React.FC<
-  React.PropsWithChildren<{style: StyleProp<ViewStyle>}>
+  React.PropsWithChildren<{style?: StyleProp<ViewStyle>}>
 > = ({children, ...props}) => (
   <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
     <KeyboardAvoidingView
