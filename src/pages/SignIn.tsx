@@ -58,6 +58,7 @@ function SignIn({navigation}: SignInScreenProps) {
           accessToken: response.data.data.accessToken,
         }),
       );
+
       await EncryptedStorage.setItem(
         'refreshToken',
         response.data.data.refreshToken,

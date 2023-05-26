@@ -10,6 +10,11 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {useSelector} from 'react-redux';
 import {RootState} from './src/store/reducer';
 import useSocket from './src/hooks/useSocket';
+import EncryptedStorage from 'react-native-encrypted-storage';
+import axios from 'axios';
+import Config from 'react-native-config';
+import userSlice from './src/slices/user';
+import {useAppDispatch} from './src/store';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -29,23 +34,23 @@ export type RootStackParamList = {
 const AppInner = () => {
   const isLoggedIn = useSelector((state: RootState) => !!state.user.email);
   const [socket, disconnect] = useSocket();
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
-    const helloCallback = (data: any) => {
+    const callback = (data: any) => {
       console.log(data);
     };
 
     if (socket && isLoggedIn) {
-      console.log(socket);
-      socket.emit('login', 'hello');
-      socket.on('hello', helloCallback);
+      socket.emit('acceptOrder', 'hello');
+      socket.on('order', callback);
     }
     return () => {
       if (socket) {
-        socket.off('hello', helloCallback);
+        socket.off('order', callback);
       }
     };
-  }, [isLoggedIn, socket]);
+  }, [isLoggedIn, socket, dispatch]);
 
   useEffect(() => {
     if (!isLoggedIn) {
@@ -53,6 +58,42 @@ const AppInner = () => {
       disconnect();
     }
   }, [isLoggedIn, disconnect]);
+
+  // 자동 로그인
+  useEffect(() => {
+    const getTokenAndRefresh = async () => {
+      try {
+        const token = await EncryptedStorage.getItem('refreshToken');
+        if (!token) {
+          return;
+        }
+        const response = await axios.post(
+          `${Config.API_URL}/refreshToken`,
+          {},
+          {
+            headers: {
+              authorization: `Bearer ${token}`,
+            },
+          },
+        );
+        dispatch(
+          userSlice.actions.setUser({
+            name: response.data.data.name,
+            email: response.data.data.email,
+            accessToken: response.data.data.accessToken,
+          }),
+        );
+      } catch (error) {
+        console.error(error);
+        if (axios.isAxiosError(error)) {
+          if (error.response?.data.code === 'expired') {
+            console.log('알림', '다시 로그인 해주세요.');
+          }
+        }
+      }
+    };
+    getTokenAndRefresh();
+  }, [dispatch]);
 
   return (
     <NavigationContainer>
