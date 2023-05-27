@@ -38,6 +38,42 @@ const AppInner = () => {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
+    // 요청 보내기 전
+    // axios.interceptors.request.use();
+    // 요청 받기 전
+    axios.interceptors.response.use(
+      // 요청 성공 시 response 반환
+      response => response,
+      // 요청 실패 시 error 처리
+      async error => {
+        const {
+          config, // config : 요청
+          response: {status},
+        } = error;
+        if (status === 419) {
+          if (error.response.data.code === 'expired') {
+            const originalRequest = config;
+            const refreshToken = await EncryptedStorage.getItem('refreshToken');
+            // token refresh 요청
+            const {data} = await axios.post(
+              `${Config.API_URL}/refreshToken`, // token refresh api
+              {},
+              {headers: {authorization: `Bearer ${refreshToken}`}},
+            );
+            // 새로운 토큰 저장
+            dispatch(userSlice.actions.setAccessToken(data.data.accessToken));
+            originalRequest.headers.authorization = `Bearer ${data.data.accessToken}`; // 원래 요청을 새로운 값으로 변경
+            // 419로 요청 실패했던 요청 새로운 토큰으로 재요청
+            return axios(originalRequest); // 다시 요청
+          }
+        }
+        // 419 에러가 아닐 때
+        return Promise.reject(error);
+      },
+    );
+  }, [dispatch]);
+
+  useEffect(() => {
     const callback = (data: any) => {
       console.log(data);
       dispatch(orderSlice.actions.addOrder(data));
