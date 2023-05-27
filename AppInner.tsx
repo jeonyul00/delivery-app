@@ -15,6 +15,7 @@ import axios from 'axios';
 import Config from 'react-native-config';
 import userSlice from './src/slices/user';
 import {useAppDispatch} from './src/store';
+import orderSlice from './src/slices/order';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -39,6 +40,7 @@ const AppInner = () => {
   useEffect(() => {
     const callback = (data: any) => {
       console.log(data);
+      dispatch(orderSlice.actions.addOrder(data));
     };
 
     if (socket && isLoggedIn) {
@@ -90,6 +92,8 @@ const AppInner = () => {
             console.log('알림', '다시 로그인 해주세요.');
           }
         }
+      } finally {
+        // to do : splash
       }
     };
     getTokenAndRefresh();
