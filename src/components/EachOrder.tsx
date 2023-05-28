@@ -70,7 +70,7 @@ function EachOrder({item}: Props) {
       {detail && (
         <View>
           <View>
-            <Text>네이버맵이 들어갈 장소</Text>
+            <Text>맵이 들어갈 장소</Text>
           </View>
           <View style={styles.buttonWrapper}>
             <Pressable onPress={onAccept} style={styles.acceptButton}>
