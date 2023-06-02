@@ -16,6 +16,7 @@ import Config from 'react-native-config';
 import userSlice from './src/slices/user';
 import {useAppDispatch} from './src/store';
 import orderSlice from './src/slices/order';
+import SplashScreen from 'react-native-splash-screen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -103,6 +104,7 @@ const AppInner = () => {
       try {
         const token = await EncryptedStorage.getItem('refreshToken');
         if (!token) {
+          SplashScreen.hide();
           return;
         }
         const response = await axios.post(
@@ -129,7 +131,7 @@ const AppInner = () => {
           }
         }
       } finally {
-        // to do : splash
+        SplashScreen.hide();
       }
     };
     getTokenAndRefresh();
