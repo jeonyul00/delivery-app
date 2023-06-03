@@ -17,6 +17,7 @@ import userSlice from './src/slices/user';
 import {useAppDispatch} from './src/store';
 import orderSlice from './src/slices/order';
 import SplashScreen from 'react-native-splash-screen';
+import messaging from '@react-native-firebase/messaging';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -37,6 +38,24 @@ const AppInner = () => {
   const isLoggedIn = useSelector((state: RootState) => !!state.user.email);
   const [socket, disconnect] = useSocket();
   const dispatch = useAppDispatch();
+
+  // fcm 토큰 설정
+  useEffect(() => {
+    async function getToken() {
+      try {
+        if (!messaging().isDeviceRegisteredForRemoteMessages) {
+          await messaging().registerDeviceForRemoteMessages();
+        }
+        const token = await messaging().getToken();
+        console.log('phone token', token);
+        // dispatch(userSlice.actions.setPhoneToken(token));
+        return axios.post(`${Config.API_URL}/phonetoken`, {token});
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    getToken();
+  }, [dispatch]);
 
   useEffect(() => {
     // 요청 보내기 전
