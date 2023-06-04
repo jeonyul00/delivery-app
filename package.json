@@ -8,7 +8,11 @@
     "ios": "react-native run-ios",
     "lint": "eslint .",
     "start": "react-native start",
-    "test": "jest"
+    "test": "jest",
+    "codepush:android": "appcenter codepush release-react -a jeonyul/test_android -d { Stating || Prodution } --sourcemap-output --output-dir ./build -m -t { 타겟버전 } ",
+    "codepush:ios": "appcenter codepush release-react -a jeonyul/test_ios -d { Stating || Prodution } --sourcemap-output --output-dir ./build -m -t { 타겟버전 }",
+    "bundle:android": "react-native bundle --assets-dest build/CodePush --bundle-output build/CodePush/index.android.bundle --dev false --entry-file index.js --platform android --sourcemap-output build/CodePush/index.android.bundle.map",
+    "bundle:ios": "react-native bundle --assets-dest build/CodePush --bundle-output build/CodePush/main.jsbundle --dev false --entry-file index.js --platform ios --sourcemap-output build/CodePush/main.jsbundle.map"
   },
   "dependencies": {
     "@react-native-community/geolocation": "^3.0.6",
@@ -20,10 +24,14 @@
     "@react-navigation/native": "^6.1.6",
     "@react-navigation/native-stack": "^6.9.12",
     "@reduxjs/toolkit": "^1.9.5",
+    "appcenter": "^4.4.5",
+    "appcenter-analytics": "^4.4.5",
+    "appcenter-crashes": "^4.4.5",
     "axios": "^1.4.0",
     "patch-package": "^7.0.0",
     "react": "18.2.0",
     "react-native": "0.71.8",
+    "react-native-code-push": "^8.0.2",
     "react-native-config": "^1.5.1",
     "react-native-encrypted-storage": "^4.0.3",
     "react-native-image-crop-picker": "^0.40.0",
